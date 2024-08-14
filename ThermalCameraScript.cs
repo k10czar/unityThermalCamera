@@ -28,7 +28,6 @@ public class ThermalCameraScript : MonoBehaviour {
 
 	//--------------------------------
 	
-	bool TV = false; // Thermal Vision
 	Camera cam;
 
 	Material TVPostProcessingMaterial = null;
@@ -43,49 +42,47 @@ public class ThermalCameraScript : MonoBehaviour {
 		cam = GetComponent<Camera>();
 	}
 
-	void Update() {
+	void OnEnable()
+	{
 		List<TemperatureController> TCs = GetAllTemperatureControllers();
+		// replace skybox material (since replacement shade doesn't seem to affect it)
+		RenderSettings.skybox = SkyboxMaterialReplacement;
 
-		if (Input.GetKeyDown("space")) {
-			TV = !TV;
-
-			if (TV) {
-				// replace skybox material (since replacement shade doesn't seem to affect it)
-				RenderSettings.skybox = SkyboxMaterialReplacement;
-
-				// replace material tags and color for objects with explicit temperature control
-				foreach (TemperatureController TC in TCs) {
-					Renderer R = TC.gameObject.GetComponent<Renderer>();
-					if (R==null) continue;
-					TC.cachedMaterialTag = R.material.GetTag("RenderType", false);
-					TC.cachedColor = R.material.color;
-					TC.gameObject.GetComponent<Renderer>().material.SetOverrideTag("RenderType", "Temperature");
-				}
-
-				// everything else
-				cam.SetReplacementShader(TVSurfaceReplacement, "RenderType");
-
-			} else {
-				// restore skybox material
-				RenderSettings.skybox = SkyboxMaterialCached;
-
-				// restore temperature-controlled object tags and color
-				foreach (TemperatureController TC in TCs) {
-					Renderer R = TC.gameObject.GetComponent<Renderer>();
-					if (R==null) continue;
-					TC.gameObject.GetComponent<Renderer>().material.SetOverrideTag("RenderType", TC.cachedMaterialTag);
-					TC.gameObject.GetComponent<Renderer>().material.color = TC.cachedColor;
-				}
-
-				// everything else
-				cam.ResetReplacementShader();
-			}
+		// replace material tags and color for objects with explicit temperature control
+		foreach (TemperatureController TC in TCs) {
+			Renderer R = TC.gameObject.GetComponent<Renderer>();
+			if (R==null) continue;
+			TC.cachedMaterialTag = R.material.GetTag("RenderType", false);
+			TC.cachedColor = R.material.color;
+			TC.gameObject.GetComponent<Renderer>().material.SetOverrideTag("RenderType", "Temperature");
 		}
 
-		if (TV) {
-			foreach (TemperatureController TC in TCs) {
-				TC.gameObject.GetComponent<Renderer>().material.color = new Color(TC.temperature, 0, 0, 0);
-			}
+		// everything else
+		cam.SetReplacementShader(TVSurfaceReplacement, "RenderType");
+	}
+
+	void OnDisable()
+	{
+		List<TemperatureController> TCs = GetAllTemperatureControllers();
+		// restore skybox material
+		RenderSettings.skybox = SkyboxMaterialCached;
+
+		// restore temperature-controlled object tags and color
+		foreach (TemperatureController TC in TCs) {
+			Renderer R = TC.gameObject.GetComponent<Renderer>();
+			if (R==null) continue;
+			TC.gameObject.GetComponent<Renderer>().material.SetOverrideTag("RenderType", TC.cachedMaterialTag);
+			TC.gameObject.GetComponent<Renderer>().material.color = TC.cachedColor;
+		}
+
+		// everything else
+		cam.ResetReplacementShader();
+	}
+
+	void Update() {
+		List<TemperatureController> TCs = GetAllTemperatureControllers();
+		foreach (TemperatureController TC in TCs) {
+			TC.gameObject.GetComponent<Renderer>().material.color = new Color(TC.temperature, 0, 0, 0);
 		}
 	}
 
@@ -93,7 +90,7 @@ public class ThermalCameraScript : MonoBehaviour {
 
 		Shader.SetGlobalFloat("_EnvironmentTemperature", environmentTemperature);
 
-		if (TV) {
+		if (enabled) {
 			if (useTexture==1 || useTexture==2) {
 				TVPostProcessingMaterial.SetInt("useTexture", useTexture);
 				TVPostProcessingMaterial.SetTexture("_PaletteTex", paletteTex);
