@@ -1,4 +1,4 @@
-﻿using System.Collections;
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -9,5 +9,4 @@ public class TemperatureController : MonoBehaviour {
 
 	[HideInInspector] public string cachedMaterialTag;
 	[HideInInspector] public Color cachedColor;
-
 }
