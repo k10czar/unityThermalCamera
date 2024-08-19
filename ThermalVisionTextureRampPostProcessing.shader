@@ -51,7 +51,7 @@
 			{
 				float4 src = tex2D(_MainTex, i.uv);
 				float lum = Luminance(src);
-				return tex2D(_PaletteTex, float2(lum, palleteY));
+				return tex2D(_PaletteTex, float2(lum, _PalleteY));
 			}
 			ENDCG
 		}
