@@ -10,6 +10,11 @@
 	float _minDepth;
 	float _maxDepth;
 	float _power;
+	float4 _pulseColor;
+	float _pulseMaxDistance;
+	float _pulseLength;
+	float _pulseFrequency;
+	float _pulsePower;
 	ENDCG
 
 	SubShader
@@ -53,9 +58,16 @@
 				float2 screenSpaceUV = i.screenSpace.xy/ i.screenSpace.w;
 				float depth = Linear01Depth(SAMPLE_DEPTH_TEXTURE( _CameraDepthTexture, screenSpaceUV ));
 				float sd = ( depth - _minDepth ) / ( _maxDepth - _minDepth );
+
+				float pulse = _pulseMaxDistance * pow( ( _Time.y * _pulseFrequency ) % 1.0, _pulsePower );
+				float pulseFunc = saturate( -( abs( depth - pulse ) - _pulseLength ) / _pulseLength );
+
 				sd = saturate( sd );
 				sd = pow( sd, _power );
-				return float4(lerp(nearColor, farColor, sd ), 1);
+				float3 baseColor = lerp(nearColor, farColor, sd );
+				float3 combined = lerp(baseColor, _pulseColor.rgb, pulseFunc * _pulseColor.a );
+
+				return float4( combined, 1);
 			}
 			ENDCG
 		}

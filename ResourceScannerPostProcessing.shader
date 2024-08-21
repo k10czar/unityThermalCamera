@@ -3,7 +3,7 @@
 	Properties
 	{
 		_MainTex ("Texture", 2D) = "white" {}
-		_Color("Colour", Color) = (1,1,1,1)
+		_Color("Color", Color) = (1,1,1,1)
 	}
 
 	CGINCLUDE
@@ -57,16 +57,21 @@
 
 			float4 frag (v2f i) : SV_Target
 			{
+				float4 src = tex2D(_MainTex, i.uv);
+				// return src;
+
 				float2 screenSpaceUV = i.screenSpace.xy/ i.screenSpace.w;
-				float depth = Linear01Depth(SAMPLE_DEPTH_TEXTURE( _CameraDepthTexture, screenSpaceUV ));
+				float depthRaw = SAMPLE_DEPTH_TEXTURE( _CameraDepthTexture, screenSpaceUV );
+				float depth = Linear01Depth(depthRaw);
 				float sd = ( depth - _minDepth ) / ( _maxDepth - _minDepth );
 				sd = saturate( sd );
 				sd = pow( sd, _power );
 				float3 depthColor = lerp(nearColor, farColor, sd );
 				
-				float4 src = tex2D(_MainTex, i.uv);
-				//return src.a;
-				// return float4(lerp(nearColor, farColor, sd ), 1);
+				// return _resourceColor;
+				// return _Color;
+				// return src * _Color.a;
+				return float4(lerp(nearColor, farColor, sd ), 1);
 				return float4(lerp(_resourceColor, depthColor, 1-src.a ), 1);
 			}
 			ENDCG

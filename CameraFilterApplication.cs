@@ -2,16 +2,10 @@ using UnityEngine;
 
 public class CameraFilterApplication
 {
-	Camera cam;
 	Material SkyboxMaterialCached = null;
 	CameraFilterData currentFilter;
 
-	public void Init( Camera camera )
-	{
-		cam = camera;
-	}
-
-	public void Apply( CameraFilterData cameraFilterData )
+	public void Apply( Camera camera, CameraFilterData cameraFilterData )
 	{
 		if( currentFilter == cameraFilterData ) return;
 		
@@ -22,7 +16,7 @@ public class CameraFilterApplication
 		if( willBeNullFilter )
 		{
 			RenderSettings.skybox = SkyboxMaterialCached;
-			cam.ResetReplacementShader();
+			camera.ResetReplacementShader();
 		}
 		else
 		{
@@ -30,7 +24,7 @@ public class CameraFilterApplication
 			if( cameraFilterData.SurfaceReplacement != null )
 			{
 				RenderSettings.skybox = cameraFilterData.SkyboxMaterialReplacement;
-				cam.SetReplacementShader(cameraFilterData.SurfaceReplacement, "RenderType");
+				camera.SetReplacementShader(cameraFilterData.SurfaceReplacement, "RenderType");
 			}
 		}
 
