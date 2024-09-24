@@ -3,6 +3,7 @@ using UnityEngine;
 
 public class CameraFilter : MonoBehaviour
 {
+    [SerializeField] FullScreenPassRendererFeature feature;
 	[SerializeField,ReadOnly] int selectedFilter = -1;
 	[SerializeField,InlineProperties] List<CameraFilterData> cameraFilters = new List<CameraFilterData>();
 	CameraFilterApplication filterApplication = new CameraFilterApplication();
@@ -23,11 +24,15 @@ public class CameraFilter : MonoBehaviour
 	void OnDisable()
 	{
 		filterApplication.Apply( filterCamera, null );
+		feature.passMaterial = null;
+		feature.SetActive( false );
 	}
 
 	public void Remove()
 	{
 		filterApplication.Apply( filterCamera, null );
+		feature.passMaterial = null;
+		feature.SetActive( false );
 	}
 
 	public void Apply( int id )
@@ -38,8 +43,10 @@ public class CameraFilter : MonoBehaviour
 			return;
 		}
 		var filter = cameraFilters[id];
+		feature.passMaterial = filter.PostProcessingMaterial;
 		filterApplication.Apply( filterCamera, filter );
-		Debug.Log( $"Applied filter {filter.TypeNameOrNullColored(Colors.Console.TypeName)} on {filterCamera.TypeNameOrNullColored(Colors.Console.Fields)}" );
+		feature.SetActive( true );
+		Debug.Log( $"Applied filter {filter.NameAndTypeColored(Colors.Console.TypeName)} on {filterCamera.TypeNameOrNullColored(Colors.Console.Fields)}" );
 	}
 
 	void UpdateFilter()
@@ -47,12 +54,13 @@ public class CameraFilter : MonoBehaviour
 		CameraFilterData filter = null;
 		if( selectedFilter >= 0 && selectedFilter < cameraFilters.Count ) filter = cameraFilters[selectedFilter];
 		filterApplication.Apply( filterCamera, filter );
+		feature.SetActive( true );
 	}
 
-	void OnRenderImage(RenderTexture src, RenderTexture dst) 
-	{
-		filterApplication.OnRenderImage( src,  dst );
-	}
+	// void OnRenderImage(RenderTexture src, RenderTexture dst) 
+	// {
+	// 	filterApplication.OnRenderImage( src,  dst );
+	// }
 
 	public int CycleFilter()
 	{

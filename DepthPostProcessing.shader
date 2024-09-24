@@ -1,11 +1,11 @@
-﻿Shader "Hidden/DepthPostProcessing"
+﻿Shader "Blit/DepthPostProcessing"
 {
 	Properties
 	{
 		_MainTex ("Texture", 2D) = "white" {}
 	}
 
-	CGINCLUDE
+	HLSLINCLUDE
 	// global input
 	float _minDepth;
 	float _maxDepth;
@@ -15,7 +15,7 @@
 	float _pulseLength;
 	float _pulseFrequency;
 	float _pulsePower;
-	ENDCG
+	ENDHLSL
 
 	SubShader
 	{
@@ -24,39 +24,43 @@
 
 		Pass
 		{
-			CGPROGRAM
+			HLSLPROGRAM
 			#pragma vertex vert
 			#pragma fragment frag
-			#include "UnityCG.cginc"
 
-			struct appdata
+        	#include "Packages/com.unity.render-pipelines.universal/ShaderLibrary/Core.hlsl"
+        	#include "Packages/com.unity.render-pipelines.universal/ShaderLibrary/DeclareDepthTexture.hlsl"
+
+			struct Attributes
 			{
-				float4 vertex : POSITION;
+				float4 positionOS : POSITION;
 				float2 uv : TEXCOORD0;
 			};
 
-			struct v2f
+			struct Varyings
 			{
-				float4 vertex : SV_POSITION;
+				float4 positionCS : SV_POSITION;
 				float4 screenSpace : TEXCOORD0;
 			};
 
-			v2f vert (appdata v)
+			Varyings vert (Attributes IN)
 			{
-				v2f o;
-				o.vertex = UnityObjectToClipPos(v.vertex);
-				o.screenSpace = ComputeScreenPos( o.vertex );
-				return o;
+				Varyings OUT;
+				VertexPositionInputs positionInputs = GetVertexPositionInputs(IN.positionOS.xyz);
+				OUT.positionCS = positionInputs.positionCS;
+				OUT.screenSpace = positionInputs.positionNDC;
+				return OUT;
 			}
 
 			float3 nearColor;
 			float3 farColor;
-            sampler2D _CameraDepthTexture;
 
-			float4 frag (v2f i) : SV_Target
+			float4 frag (Varyings i) : SV_Target
 			{
 				float2 screenSpaceUV = i.screenSpace.xy/ i.screenSpace.w;
-				float depth = Linear01Depth(SAMPLE_DEPTH_TEXTURE( _CameraDepthTexture, screenSpaceUV ));
+				float rawDepth = SampleSceneDepth( screenSpaceUV );
+				// float depth = Linear01Depth(rawDepth);
+				float depth = rawDepth;
 				float sd = ( depth - _minDepth ) / ( _maxDepth - _minDepth );
 
 				float pulse = _pulseMaxDistance * pow( ( _Time.y * _pulseFrequency ) % 1.0, _pulsePower );
@@ -69,7 +73,7 @@
 
 				return float4( combined, 1);
 			}
-			ENDCG
+			ENDHLSL
 		}
 	}
 }
