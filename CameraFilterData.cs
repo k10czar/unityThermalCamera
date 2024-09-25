@@ -10,13 +10,16 @@ public class CameraFilterData : ScriptableObject
     [SerializeReference] ScriptableRendererFeature[] features;
 	[SerializeReference,ExtendedDrawer] public List<ShaderParameter> parameters;
 
-    private Material skyboxMaterial = null;
-	private Material postProcessingMaterial = null;
+    [SerializeReference,ReadOnly] Material skyboxMaterial = null;
+	[SerializeReference,ReadOnly] Material postProcessingMaterial = null;
+
     public Material SkyboxMaterialReplacement
     {
         get
         {
-			if( skyboxMaterial == null ) skyboxMaterial = new Material(SurfaceReplacement);
+            // if( !createMaterialInstances ) return SurfaceReplacementOriginalMaterial;
+			if( skyboxMaterial == null && SurfaceReplacement != null ) skyboxMaterial = new Material(SurfaceReplacement);
+			// if( skyboxMaterial == null && SurfaceReplacementOriginalMaterial != null ) skyboxMaterial = UnityEngine.Object.Instantiate(SurfaceReplacementOriginalMaterial);
             return skyboxMaterial;
         }
     }
@@ -25,7 +28,9 @@ public class CameraFilterData : ScriptableObject
     {
         get
         {
-			if( postProcessingMaterial == null ) postProcessingMaterial = new Material(PostProcessing);
+            // if( !createMaterialInstances ) return PostProcessingOriginalMaterial;
+			if( postProcessingMaterial == null && PostProcessing != null ) postProcessingMaterial = new Material(PostProcessing);
+			// if( postProcessingMaterial == null && PostProcessingOriginalMaterial != null ) postProcessingMaterial = UnityEngine.Object.Instantiate(PostProcessingOriginalMaterial);
             return postProcessingMaterial;
         }
     }

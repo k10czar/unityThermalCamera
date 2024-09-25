@@ -4,9 +4,8 @@ public class CameraFilterApplication
 {
 	Material SkyboxMaterialCached = null;
 	CameraFilterData currentFilter;
-    private FullScreenPassRendererFeature feature;
 
-    public void Apply( Camera camera, CameraFilterData cameraFilterData )
+    public void Apply( CameraFilterData cameraFilterData, FullScreenPassRendererFeature feature )
 	{
 		if( currentFilter == cameraFilterData ) return;
 		
@@ -14,19 +13,20 @@ public class CameraFilterApplication
 		if( hasFilterBefore ) currentFilter.Disable();
 		else SkyboxMaterialCached = RenderSettings.skybox;
 
-		var willBeNullFilter = cameraFilterData == null;
+		currentFilter = cameraFilterData;
+		var willBeNullFilter = currentFilter == null;
 		if( willBeNullFilter )
 		{
 			RenderSettings.skybox = SkyboxMaterialCached;
 		}
 		else
 		{
-			if( cameraFilterData.SurfaceReplacement != null )
+			if( currentFilter.SurfaceReplacement != null )
 			{
-				RenderSettings.skybox = cameraFilterData.SkyboxMaterialReplacement;
+				RenderSettings.skybox = currentFilter.SkyboxMaterialReplacement;
 			}
+			currentFilter.Apply( feature );
 		}
 
-		currentFilter = cameraFilterData;
 	}
 }

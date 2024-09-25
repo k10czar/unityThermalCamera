@@ -36,15 +36,19 @@ public abstract class ShaderParameter
 	
 	public void ApplyOn(Material mat)
 	{
+		// Debug.Log( $"Applying on {mat.name} shader parameter {name}" );
 		if( isStatic ) ApplyStatically();
 		else ApplyOnInstanceOf( mat );
 	}
 	protected abstract void ApplyOnInstanceOf( Material mat );
 	protected abstract void ApplyStatically();
+
+	public override string ToString() => isStatic ? $"Static {name}" : name;
 }
 
 [System.Serializable]
 public abstract class ShaderParameter<T> : ShaderParameter
 {
 	public T value;
+	public override string ToString() => isStatic ? $"Static {name}: {value}" : $"{name}: {value}";
 }

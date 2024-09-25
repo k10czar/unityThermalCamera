@@ -23,14 +23,14 @@ public class CameraFilter : MonoBehaviour
 
 	void OnDisable()
 	{
-		filterApplication.Apply( filterCamera, null );
+		filterApplication.Apply( null, feature );
 		feature.passMaterial = null;
 		feature.SetActive( false );
 	}
 
 	public void Remove()
 	{
-		filterApplication.Apply( filterCamera, null );
+		filterApplication.Apply( null, feature );
 		feature.passMaterial = null;
 		feature.SetActive( false );
 	}
@@ -44,7 +44,7 @@ public class CameraFilter : MonoBehaviour
 		}
 		var filter = cameraFilters[id];
 		feature.passMaterial = filter.PostProcessingMaterial;
-		filterApplication.Apply( filterCamera, filter );
+		filterApplication.Apply( filter, feature );
 		feature.SetActive( true );
 		Debug.Log( $"Applied filter {filter.NameAndTypeColored(Colors.Console.TypeName)} on {filterCamera.TypeNameOrNullColored(Colors.Console.Fields)}" );
 	}
@@ -53,7 +53,7 @@ public class CameraFilter : MonoBehaviour
 	{
 		CameraFilterData filter = null;
 		if( selectedFilter >= 0 && selectedFilter < cameraFilters.Count ) filter = cameraFilters[selectedFilter];
-		filterApplication.Apply( filterCamera, filter );
+		filterApplication.Apply( filter, feature );
 		feature.SetActive( true );
 	}
 
