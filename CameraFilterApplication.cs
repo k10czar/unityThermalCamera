@@ -21,10 +21,7 @@ public class CameraFilterApplication
 		}
 		else
 		{
-			if( currentFilter.SurfaceReplacement != null )
-			{
-				RenderSettings.skybox = currentFilter.SkyboxMaterialReplacement;
-			}
+			if( currentFilter.UseSurfaceReplacement ) RenderSettings.skybox = currentFilter.SkyboxMaterialReplacement;
 			currentFilter.Apply( feature );
 		}
 
