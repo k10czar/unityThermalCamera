@@ -54,7 +54,7 @@ public class CameraFilter : MonoBehaviour
 		CameraFilterData filter = null;
 		if( selectedFilter >= 0 && selectedFilter < cameraFilters.Count ) filter = cameraFilters[selectedFilter];
 		filterApplication.Apply( filter, feature );
-		feature.SetActive( true );
+		if( feature != null ) feature.SetActive( true );
 	}
 
 	// void OnRenderImage(RenderTexture src, RenderTexture dst) 
